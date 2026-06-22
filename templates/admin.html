@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nexonic Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ── Tokens ─────────────────────────────────────────── */
+:root{
+  --bg:#0A0A0A; --bg2:#111111; --bg3:#1A1A1A;
+  --fg:#F5F5F5; --muted:#A3A3A3; --muted2:#525252;
+  --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.05);
+  --card:#141414; --accent:#C6F432; --acc-fg:#0A0A0A;
+  --danger:#EF4444; --ok:#22C55E;
+  --radius:.625rem; --shadow:0 4px 24px rgba(0,0,0,.5);
+  --mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#FAFAFA; --bg2:#F4F4F4; --bg3:#EBEBEB;
+  --fg:#0A0A0A; --muted:#737373; --muted2:#A3A3A3;
+  --border:#E5E5E5; --border2:#F0F0F0;
+  --card:#FFFFFF; --shadow:0 4px 24px rgba(0,0,0,.07);
+}
+/* ── Reset ──────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.5;transition:background .25s,color .25s}
+::selection{background:var(--accent);color:var(--acc-fg)}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+/* ── Login screen ───────────────────────────────────── */
+#loginScreen{
+  position:fixed;inset:0;z-index:999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .35s
+}
+#loginScreen.hidden{opacity:0;pointer-events:none}
+.login-card{
+  width:380px;max-width:90vw;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:1.5rem;padding:2.75rem 2.25rem;
+  box-shadow:var(--shadow)
+}
+.login-logo{display:flex;align-items:center;gap:.625rem;font-weight:600;font-size:1.0625rem;margin-bottom:2.25rem}
+.login-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.login-card h1{font-size:1.375rem;letter-spacing:-.025em;margin-bottom:.5rem}
+.login-card p{font-size:.875rem;color:var(--muted);margin-bottom:2rem}
+.field{margin-bottom:1.125rem}
+.field label{display:block;font-size:.8125rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;letter-spacing:.02em}
+.field input{
+  width:100%;height:42px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:0 .875rem;color:var(--fg);outline:none;
+  transition:border-color .18s
+}
+.field input:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--muted2)}
+.login-err{display:none;color:var(--danger);font-size:.8125rem;margin-bottom:1rem;background:color-mix(in srgb,var(--danger) 10%,transparent);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent);padding:.625rem .875rem;border-radius:.5rem}
+.login-btn{
+  width:100%;height:42px;background:var(--accent);color:var(--acc-fg);
+  border:none;border-radius:var(--radius);font-weight:600;font-size:.9375rem;
+  transition:.18s;margin-top:.25rem
+}
+.login-btn:hover{opacity:.88}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+/* ── App shell ──────────────────────────────────────── */
+#app{display:none;height:100%;flex-direction:column}
+#app.visible{display:flex}
+/* ── Topbar ─────────────────────────────────────────── */
+.topbar{
+  display:flex;align-items:center;height:52px;padding:0 1.125rem;
+  background:var(--card);border-bottom:1px solid var(--border);
+  gap:1rem;flex-shrink:0
+}
+.topbar-brand{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.9375rem;margin-right:.5rem}
+.topbar-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.topbar-center{flex:1;display:flex;align-items:center;gap:.625rem;min-width:0}
+.breadcrumb{font-size:.8125rem;color:var(--muted);display:flex;align-items:center;gap:.375rem;flex-wrap:wrap}
+.breadcrumb .sep{color:var(--muted2)}
+.breadcrumb .active{color:var(--fg);font-weight:500}
+.topbar-actions{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.icon-btn{
+  width:32px;height:32px;border-radius:.5rem;border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;font-size:14px;
+  transition:.15s
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .625rem;border-radius:999px;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.badge-ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.badge-off{background:var(--bg3);color:var(--muted)}
+.back-home{display:inline-flex;align-items:center;gap:.4rem;font-size:.8125rem;color:var(--muted);padding:.35rem .7rem;border-radius:.5rem;border:1px solid var(--border);transition:.15s}
+.back-home:hover{color:var(--fg);border-color:var(--fg)}
+/* ── Main layout ────────────────────────────────────── */
+.layout{display:flex;flex:1;min-height:0;overflow:hidden}
+/* ── Sidebar ─────────────────────────────────────────── */
+.sidebar{
+  width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden
+}
+.sidebar-header{padding:.875rem 1rem .5rem;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.file-list{flex:1;overflow-y:auto;padding:0 .5rem .5rem}
+.file-item{
+  display:flex;align-items:center;gap:.625rem;padding:.625rem .75rem;
+  border-radius:.5rem;font-size:.8125rem;cursor:pointer;transition:.15s;
+  color:var(--muted);word-break:break-all
+}
+.file-item:hover{background:var(--bg3);color:var(--fg)}
+.file-item.active{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:500}
+.file-icon{font-size:1rem;flex-shrink:0}
+.file-meta{font-size:.7rem;color:var(--muted2);margin-top:.125rem}
+.sidebar-empty{padding:2rem 1rem;font-size:.8125rem;color:var(--muted);text-align:center;line-height:1.6}
+.folder-path{padding:.5rem 1rem .875rem;font-size:.7rem;color:var(--muted2);font-family:var(--mono);word-break:break-all;border-top:1px solid var(--border)}
+/* ── Content ─────────────────────────────────────────── */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+/* ── Tabs ────────────────────────────────────────────── */
+.tabs-bar{
+  display:flex;align-items:center;gap:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:0 1rem;flex-shrink:0;overflow-x:auto
+}
+.tab{
+  display:inline-flex;align-items:center;gap:.375rem;padding:.625rem 1rem;
+  font-size:.8125rem;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:.15s
+}
+.tab:hover{color:var(--fg)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+/* ── Table area ──────────────────────────────────────── */
+.table-section{flex:1;display:flex;flex-direction:column;min-height:0;padding:1rem}
+.table-toolbar{display:flex;align-items:center;gap:.625rem;margin-bottom:.875rem;flex-wrap:wrap}
+.select-table{
+  height:34px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:0 .75rem;color:var(--fg);outline:none;
+  font-size:.8125rem;min-width:160px;transition:border-color .15s
+}
+.select-table:focus{border-color:var(--accent)}
+.search-input{
+  height:34px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:0 .75rem;color:var(--fg);outline:none;
+  font-size:.8125rem;min-width:200px;flex:1;transition:border-color .15s
+}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--muted2)}
+.toolbar-btn{
+  height:34px;padding:0 .875rem;border-radius:var(--radius);
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  font-size:.8125rem;display:inline-flex;align-items:center;gap:.4rem;
+  transition:.15s;white-space:nowrap
+}
+.toolbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.toolbar-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--acc-fg);font-weight:500}
+.toolbar-btn.primary:hover{opacity:.88}
+.toolbar-btn.danger{border-color:var(--danger);color:var(--danger)}
+.toolbar-btn.danger:hover{background:color-mix(in srgb,var(--danger) 12%,transparent)}
+/* ── Data grid ───────────────────────────────────────── */
+.grid-wrap{flex:1;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);min-height:0}
+.data-table{width:100%;border-collapse:collapse;font-size:.8125rem}
+.data-table th{
+  position:sticky;top:0;background:var(--bg3);
+  padding:.625rem .875rem;text-align:left;font-weight:600;font-size:.75rem;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;
+  user-select:none;z-index:1
+}
+.data-table th:hover{color:var(--fg)}
+.data-table th.sorted{color:var(--accent)}
+.sort-arrow{opacity:.5;margin-left:.25rem;font-size:.7rem}
+.data-table td{
+  padding:.5625rem .875rem;border-bottom:1px solid var(--border2);
+  font-family:var(--mono);font-size:.7875rem;color:var(--fg);
+  max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.data-table tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.data-table tr:last-child td{border-bottom:0}
+.td-null{color:var(--muted2);font-style:italic;font-family:'Inter',sans-serif}
+.td-pk{color:var(--accent)}
+.td-num{color:#7DD3FC}
+.td-bool{color:#86EFAC}
+/* ── Pagination ──────────────────────────────────────── */
+.pagination{display:flex;align-items:center;gap:.5rem;padding:.75rem 0 0;flex-shrink:0}
+.page-info{font-size:.8125rem;color:var(--muted);flex:1}
+.page-btn{
+  height:30px;padding:0 .75rem;border-radius:.5rem;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:.8125rem;transition:.15s
+}
+.page-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+/* ── SQL editor ──────────────────────────────────────── */
+.editor-section{display:flex;flex-direction:column;height:100%;padding:1rem;gap:.875rem}
+.editor-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.sql-textarea{
+  flex:1;min-height:200px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem;color:var(--fg);font-family:var(--mono);
+  font-size:.875rem;line-height:1.65;resize:vertical;outline:none;
+  transition:border-color .15s
+}
+.sql-textarea:focus{border-color:var(--accent)}
+.sql-textarea::placeholder{color:var(--muted2)}
+.editor-controls{display:flex;align-items:center;gap:.625rem}
+.result-area{border:1px solid var(--border);border-radius:var(--radius);overflow:auto;max-height:320px}
+.result-info{display:flex;align-items:center;gap:.625rem;font-size:.8125rem;padding:.625rem 0;color:var(--muted)}
+.result-dot{width:7px;height:7px;border-radius:50%}
+.result-dot.ok{background:var(--ok)}
+.result-dot.err{background:var(--danger)}
+.error-box{padding:1rem;background:color-mix(in srgb,var(--danger) 8%,transparent);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent);border-radius:var(--radius);font-family:var(--mono);font-size:.8125rem;color:var(--danger)}
+.sql-file-view{
+  flex:1;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1rem;overflow:auto;
+  font-family:var(--mono);font-size:.8125rem;color:var(--fg);
+  line-height:1.7;white-space:pre-wrap;word-break:break-all
+}
+/* ── Empty & loading states ─────────────────────────── */
+.state-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:var(--muted);text-align:center;gap:.75rem;padding:2rem
+}
+.state-placeholder .ph-icon{font-size:3rem;opacity:.4}
+.state-placeholder h3{font-size:1rem;font-weight:500;color:var(--fg)}
+.state-placeholder p{font-size:.875rem;line-height:1.6;max-width:26rem}
+.spinner{
+  width:28px;height:28px;border:2.5px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .7s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── Stats bar ───────────────────────────────────────── */
+.stats-bar{
+  display:flex;align-items:center;gap:1.25rem;padding:.5rem 1rem;
+  background:var(--bg2);border-top:1px solid var(--border);font-size:.75rem;
+  color:var(--muted);flex-shrink:0;flex-wrap:wrap
+}
+.stat-item{display:flex;align-items:center;gap:.375rem}
+.stat-item strong{color:var(--fg);font-weight:600}
+/* ── Logout area ─────────────────────────────────────── */
+.logout-btn{
+  height:32px;padding:0 .875rem;border-radius:.5rem;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:.8125rem;display:inline-flex;
+  align-items:center;gap:.375rem;transition:.15s
+}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+/* ── Column type chips ───────────────────────────────── */
+.col-type{font-size:.65rem;font-weight:500;padding:.1rem .35rem;border-radius:.25rem;background:var(--bg3);color:var(--muted2);margin-left:.375rem;text-transform:uppercase}
+/* ── Scrollbars ──────────────────────────────────────── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
+/* ── Responsive ──────────────────────────────────────── */
+@media(max-width:640px){
+  .sidebar{width:180px}
+  .breadcrumb{display:none}
+}
+@media(max-width:480px){
+  .sidebar{display:none}
+  .layout{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────────── LOGIN SCREEN ─────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><span class="dot"></span> Nexonic Admin</div>
+    <h1>Sign in</h1>
+    <p>Database administration panel</p>
+    <div id="loginErr" class="login-err"></div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="uname" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="upass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- ─────────────── ADMIN APP ─────────────────────────── -->
+<div id="app">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-brand"><span class="dot"></span> Nexonic</div>
+    <div class="topbar-center">
+      <div class="breadcrumb">
+        <span>Admin</span>
+        <span class="sep">/</span>
+        <span id="bcFile" class="active">—</span>
+        <span class="sep" id="bcSep2" style="display:none">/</span>
+        <span id="bcTable" class="active" style="display:none"></span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="connBadge" class="badge badge-off">● offline</span>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+      <a class="back-home" href="/">← Home</a>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="layout">
+
+    <!-- Sidebar: file list -->
+    <div class="sidebar">
+      <div class="sidebar-header">SQL Files</div>
+      <div class="file-list" id="fileList">
+        <div class="state-placeholder" style="height:auto;padding:1.5rem .75rem">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <div class="folder-path" id="folderPath"></div>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+      <!-- Tab bar -->
+      <div class="tabs-bar" id="tabBar">
+        <div class="tab active" data-tab="browse" onclick="switchTab('browse')">
+          <span>📊</span> Browse
+        </div>
+        <div class="tab" data-tab="query" onclick="switchTab('query')">
+          <span>⌨️</span> SQL Query
+        </div>
+        <div class="tab" data-tab="schema" onclick="switchTab('schema')">
+          <span>🏗️</span> Schema
+        </div>
+      </div>
+
+      <!-- Browse tab -->
+      <div id="tabBrowse" class="table-section">
+        <div id="browseContent" class="state-placeholder">
+          <div class="ph-icon">🗂️</div>
+          <h3>No file selected</h3>
+          <p>Choose a database file from the sidebar to start browsing its tables.</p>
+        </div>
+      </div>
+
+      <!-- Query tab -->
+      <div id="tabQuery" style="display:none" class="editor-section">
+        <div>
+          <div class="editor-label" style="margin-bottom:.625rem">SQL Query Editor</div>
+          <div style="font-size:.8125rem;color:var(--muted);margin-bottom:.75rem">
+            <span id="queryDbLabel">No database selected</span>
+          </div>
+        </div>
+        <textarea class="sql-textarea" id="sqlEditor" placeholder="SELECT * FROM knowledge_entries LIMIT 25;
+-- Tip: Ctrl+Enter to run" rows="8"></textarea>
+        <div class="editor-controls">
+          <button class="toolbar-btn primary" onclick="runQuery()">▶ Run  <kbd style="font-size:.7rem;opacity:.7">Ctrl+↵</kbd></button>
+          <button class="toolbar-btn" onclick="formatQuery()">✨ Format</button>
+          <button class="toolbar-btn" onclick="clearQuery()">✕ Clear</button>
+          <div id="queryTime" style="font-size:.8125rem;color:var(--muted);margin-left:auto"></div>
+        </div>
+        <div id="queryResultInfo" class="result-info" style="display:none">
+          <div class="result-dot" id="resultDot"></div>
+          <span id="resultMsg"></span>
+        </div>
+        <div id="queryError" class="error-box" style="display:none"></div>
+        <div id="queryResultWrap" class="result-area" style="display:none">
+          <table class="data-table" id="queryResultTable"></table>
+        </div>
+      </div>
+
+      <!-- Schema tab -->
+      <div id="tabSchema" style="display:none" class="table-section">
+        <div id="schemaContent" class="state-placeholder">
+          <div class="ph-icon">🏗️</div>
+          <h3>No database selected</h3>
+          <p>Select a database file and then a table to see its schema.</p>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /layout -->
+
+  <!-- Stats bar -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item">DB: <strong id="statDb">—</strong></div>
+    <div class="stat-item">Table: <strong id="statTable">—</strong></div>
+    <div class="stat-item">Rows: <strong id="statRows">—</strong></div>
+    <div class="stat-item">Page: <strong id="statPage">—</strong></div>
+    <div style="margin-left:auto;color:var(--muted2);font-size:.7rem">Nexonic Admin v1.0</div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ────────────────────────────────────────────────────────
+   STATE
+──────────────────────────────────────────────────────── */
+const S = {
+  files: [],
+  activeFile: null,
+  tables: [],
+  activeTable: null,
+  columns: [],
+  rows: [],
+  total: 0,
+  limit: 50,
+  offset: 0,
+  sortCol: null,
+  sortDir: 'asc',
+  search: '',
+  tab: 'browse',
+};
+
+/* ────────────────────────────────────────────────────────
+   THEME
+──────────────────────────────────────────────────────── */
+const THEME_KEY = 'nexonic_admin_theme';
+let theme = localStorage.getItem(THEME_KEY) || 'dark';
+
+function applyTheme(t) {
+  theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem(THEME_KEY, t);
+  document.getElementById('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme() { applyTheme(theme === 'dark' ? 'light' : 'dark'); }
+applyTheme(theme);
+
+/* ────────────────────────────────────────────────────────
+   UTILS
+──────────────────────────────────────────────────────── */
+function el(id) { return document.getElementById(id); }
+
+async function api(url, opts = {}) {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  return res.json();
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+}
+
+function renderTableHTML(columns, rows) {
+  if (!columns.length) return '<tr><td class="td-null">No results</td></tr>';
+  const head = '<tr>' + columns.map(c =>
+    `<th>${c}</th>`
+  ).join('') + '</tr>';
+  const body = rows.map(r =>
+    '<tr>' + columns.map(c => {
+      const v = r[c];
+      if (v === null || v === undefined) return '<td class="td-null">NULL</td>';
+      if (typeof v === 'number') return `<td class="td-num">${v}</td>`;
+      if (typeof v === 'boolean') return `<td class="td-bool">${v}</td>`;
+      return `<td title="${String(v).replace(/"/g, '&quot;')}">${String(v)}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
+  return head + body;
+}
+
+/* ────────────────────────────────────────────────────────
+   AUTH
+──────────────────────────────────────────────────────── */
+async function checkAuth() {
+  const d = await api('/api/auth/status');
+  if (d.authenticated) showApp();
+}
+
+async function doLogin() {
+  const btn = el('loginBtn');
+  const errEl = el('loginErr');
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errEl.style.display = 'none';
+
+  const d = await api('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      username: el('uname').value.trim(),
+      password: el('upass').value,
+    }),
+  });
+
+  if (d.ok) {
+    showApp();
+  } else {
+    errEl.textContent = d.error || 'Login failed';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }
+}
+
+async function doLogout() {
+  await api('/api/auth/logout', { method: 'POST' });
+  el('app').classList.remove('visible');
+  el('loginScreen').classList.remove('hidden');
+  el('upass').value = '';
+  resetState();
+}
+
+function showApp() {
+  el('loginScreen').classList.add('hidden');
+  el('app').classList.add('visible');
+  loadFiles();
+}
+
+function resetState() {
+  Object.assign(S, {
+    files: [], activeFile: null, tables: [], activeTable: null,
+    columns: [], rows: [], total: 0, offset: 0, sortCol: null, search: '',
+  });
+}
+
+/* ────────────────────────────────────────────────────────
+   FILE LIST
+──────────────────────────────────────────────────────── */
+async function loadFiles() {
+  const d = await api('/api/db/files');
+  S.files = d.files || [];
+  el('folderPath').textContent = d.folder ? 'Folder: ' + d.folder : '';
+
+  const list = el('fileList');
+  if (!S.files.length) {
+    list.innerHTML = '<div class="sidebar-empty">No .db or .sql files found.<br>Add files to the <code>./sql</code> folder.</div>';
+    return;
+  }
+
+  list.innerHTML = S.files.map((f, i) => {
+    const icon = f.type === 'database' ? '🗄️' : '📄';
+    return `<div class="file-item" data-i="${i}" onclick="selectFile(${i})">
+      <span class="file-icon">${icon}</span>
+      <div style="min-width:0">
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+        <div class="file-meta">${fmtSize(f.size)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function selectFile(i) {
+  const f = S.files[i];
+  S.activeFile = f;
+  S.activeTable = null;
+  S.offset = 0;
+
+  document.querySelectorAll('.file-item').forEach((el, j) => {
+    el.classList.toggle('active', j === i);
+  });
+
+  el('bcFile').textContent = f.name;
+  el('bcSep2').style.display = 'none';
+  el('bcTable').style.display = 'none';
+  el('queryDbLabel').textContent = `Connected: ${f.name}`;
+
+  updateStats();
+
+  if (f.type === 'database') {
+    el('connBadge').className = 'badge badge-ok';
+    el('connBadge').textContent = '● connected';
+    await loadTables();
+  } else {
+    el('connBadge').className = 'badge badge-off';
+    el('connBadge').textContent = '● sql script';
+    showSQLScript();
+  }
+}
+
+/* ────────────────────────────────────────────────────────
+   TABLES
+──────────────────────────────────────────────────────── */
+async function loadTables() {
+  const d = await api(`/api/db/${S.activeFile.name}/tables`);
+  S.tables = d.items || [];
+
+  if (!S.tables.length) {
+    el('browseContent').innerHTML = `<div class="state-placeholder">
+      <div class="ph-icon">📭</div>
+      <h3>Empty database</h3>
+      <p>No tables or views found in ${S.activeFile.name}.</p>
+    </div>`;
+    return;
+  }
+
+  renderBrowseUI();
+  if (S.tables.length) selectTable(S.tables[0].name);
+}
+
+function renderBrowseUI() {
+  el('browseContent').innerHTML = `
+    <div class="table-toolbar" id="toolbar">
+      <select class="select-table" id="tableSelect" onchange="selectTable(this.value)">
+        ${S.tables.map(t => `<option value="${t.name}">${t.type === 'view' ? '👁 ' : ''}${t.name}</option>`).join('')}
+      </select>
+      <input class="search-input" id="searchInput" placeholder="🔍  Search rows…" oninput="onSearch(this.value)" />
+      <button class="toolbar-btn" onclick="refreshData()">↺ Refresh</button>
+    </div>
+    <div class="grid-wrap" id="gridWrap">
+      <div style="display:flex;align-items:center;justify-content:center;padding:2rem">
+        <div class="spinner"></div>
+      </div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  `;
+}
+
+async function selectTable(name) {
+  S.activeTable = name;
+  S.offset = 0;
+  S.search = '';
+  S.sortCol = null;
+
+  const sel = el('tableSelect');
+  if (sel) sel.value = name;
+
+  const si = el('searchInput');
+  if (si) si.value = '';
+
+  el('bcSep2').style.display = '';
+  el('bcTable').style.display = '';
+  el('bcTable').textContent = name;
+
+  await loadData();
+  if (S.tab === 'schema') await loadSchema();
+}
+
+let searchTimer;
+function onSearch(v) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    S.search = v;
+    S.offset = 0;
+    loadData();
+  }, 280);
+}
+
+async function loadData() {
+  if (!S.activeFile || !S.activeTable) return;
+  const grid = el('gridWrap');
+  if (grid) grid.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;padding:2rem"><div class="spinner"></div></div>`;
+
+  const params = new URLSearchParams({
+    limit: S.limit,
+    offset: S.offset,
+    ...(S.sortCol ? { sort: S.sortCol, dir: S.sortDir } : {}),
+    ...(S.search ? { search: S.search } : {}),
+  });
+
+  const d = await api(`/api/db/${S.activeFile.name}/data/${S.activeTable}?${params}`);
+  if (d.error) {
+    if (grid) grid.innerHTML = `<div class="error-box" style="margin:1rem">${d.error}</div>`;
+    return;
+  }
+
+  S.columns = d.columns || [];
+  S.rows = d.rows || [];
+  S.total = d.total || 0;
+
+  renderGrid();
+  renderPagination();
+  updateStats();
+}
+
+function renderGrid() {
+  const grid = el('gridWrap');
+  if (!grid) return;
+
+  const pkCols = new Set(S.columns.filter(c => c.pk).map(c => c.name));
+  const numTypes = new Set(['INTEGER', 'REAL', 'NUMERIC', 'FLOAT', 'DOUBLE', 'INT']);
+
+  const head = '<tr>' + S.columns.map(c => {
+    const sorted = S.sortCol === c.name;
+    const arrow = sorted ? (S.sortDir === 'asc' ? '▲' : '▼') : '↕';
+    return `<th class="${sorted ? 'sorted' : ''}" onclick="sortBy('${c.name}')">
+      ${c.name}<span class="sort-arrow">${arrow}</span>
+    </th>`;
+  }).join('') + '</tr>';
+
+  const body = S.rows.map(r =>
+    '<tr>' + S.columns.map(c => {
+      const v = r[c.name];
+      const isPK = pkCols.has(c.name);
+      const isNum = numTypes.has((c.type || '').toUpperCase());
+      if (v === null || v === undefined)
+        return '<td class="td-null">NULL</td>';
+      if (isPK)
+        return `<td class="td-pk">${v}</td>`;
+      if (isNum || typeof v === 'number')
+        return `<td class="td-num">${v}</td>`;
+      const str = String(v);
+      return `<td title="${str.replace(/"/g, '&quot;')}">${str}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
+
+  grid.innerHTML = `<table class="data-table"><thead>${head}</thead><tbody>${body || '<tr><td class="td-null" colspan="100">No rows found</td></tr>'}</tbody></table>`;
+}
+
+function renderPagination() {
+  const pg = el('pagination');
+  if (!pg) return;
+  const pageNum = Math.floor(S.offset / S.limit) + 1;
+  const totalPages = Math.ceil(S.total / S.limit) || 1;
+
+  pg.innerHTML = `
+    <div class="page-info">${S.total.toLocaleString()} rows total</div>
+    <button class="page-btn" onclick="goPage(-1)" ${S.offset <= 0 ? 'disabled' : ''}>← Prev</button>
+    <span style="font-size:.8125rem;color:var(--muted)">Page ${pageNum} / ${totalPages}</span>
+    <button class="page-btn" onclick="goPage(1)" ${S.offset + S.limit >= S.total ? 'disabled' : ''}>Next →</button>
+    <select class="select-table" style="height:30px;min-width:80px;font-size:.8rem" onchange="changeLimit(+this.value)">
+      ${[25,50,100,250].map(n => `<option value="${n}" ${S.limit===n?'selected':''}>${n} / page</option>`).join('')}
+    </select>
+  `;
+}
+
+function goPage(dir) {
+  S.offset = Math.max(0, S.offset + dir * S.limit);
+  loadData();
+}
+
+function changeLimit(n) {
+  S.limit = n;
+  S.offset = 0;
+  loadData();
+}
+
+function sortBy(col) {
+  if (S.sortCol === col) {
+    S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    S.sortCol = col;
+    S.sortDir = 'asc';
+  }
+  S.offset = 0;
+  loadData();
+}
+
+function refreshData() { loadData(); }
+
+/* ────────────────────────────────────────────────────────
+   SQL SCRIPT VIEWER
+──────────────────────────────────────────────────────── */
+async function showSQLScript() {
+  const d = await api(`/api/db/sql/${S.activeFile.name}`);
+  el('browseContent').innerHTML = d.error
+    ? `<div class="error-box" style="margin:1rem">${d.error}</div>`
+    : `<div class="sql-file-view">${d.content.replace(/</g,'&lt;')}</div>`;
+}
+
+/* ────────────────────────────────────────────────────────
+   SQL QUERY EDITOR
+──────────────────────────────────────────────────────── */
+async function runQuery() {
+  if (!S.activeFile || S.activeFile.type !== 'database') {
+    el('queryError').textContent = 'Please select a database file first.';
+    el('queryError').style.display = 'block';
+    return;
+  }
+  const q = el('sqlEditor').value.trim();
+  if (!q) return;
+
+  el('queryError').style.display = 'none';
+  el('queryResultInfo').style.display = 'none';
+  el('queryResultWrap').style.display = 'none';
+
+  const t0 = performance.now();
+  const d = await api(`/api/db/${S.activeFile.name}/query`, {
+    method: 'POST',
+    body: JSON.stringify({ query: q }),
+  });
+  const ms = (performance.now() - t0).toFixed(1);
+
+  el('queryTime').textContent = `${ms}ms`;
+
+  if (d.error) {
+    el('queryError').textContent = d.error;
+    el('queryError').style.display = 'block';
+    el('queryResultInfo').style.display = 'flex';
+    el('resultDot').className = 'result-dot err';
+    el('resultMsg').textContent = 'Query failed';
+    return;
+  }
+
+  el('queryResultInfo').style.display = 'flex';
+  el('resultDot').className = 'result-dot ok';
+
+  if (d.type === 'select') {
+    el('resultMsg').textContent = `${d.rows.length} row(s) returned`;
+    el('queryResultWrap').style.display = 'block';
+    el('queryResultTable').innerHTML = renderTableHTML(d.columns, d.rows);
+  } else {
+    el('resultMsg').textContent = `${d.affected} row(s) affected`;
+    // Refresh browse tab data if same table is open
+    if (S.activeTable) loadData();
+  }
+}
+
+function formatQuery() {
+  const ta = el('sqlEditor');
+  let q = ta.value.trim();
+  const kw = ['SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN',
+    'GROUP BY','ORDER BY','HAVING','LIMIT','OFFSET','INSERT INTO','VALUES',
+    'UPDATE','SET','DELETE FROM','CREATE TABLE','DROP TABLE','ALTER TABLE'];
+  kw.forEach(k => { q = q.replace(new RegExp('\\b' + k + '\\b', 'gi'), '\n' + k); });
+  ta.value = q.trim();
+}
+
+function clearQuery() {
+  el('sqlEditor').value = '';
+  el('queryError').style.display = 'none';
+  el('queryResultInfo').style.display = 'none';
+  el('queryResultWrap').style.display = 'none';
+  el('queryTime').textContent = '';
+}
+
+/* ────────────────────────────────────────────────────────
+   SCHEMA TAB
+──────────────────────────────────────────────────────── */
+async function loadSchema() {
+  if (!S.activeFile || !S.activeTable) {
+    el('schemaContent').innerHTML = `<div class="state-placeholder">
+      <div class="ph-icon">🏗️</div>
+      <h3>No table selected</h3><p>Select a table in the Browse tab first.</p>
+    </div>`;
+    return;
+  }
+
+  const d = await api(`/api/db/${S.activeFile.name}/schema/${S.activeTable}`);
+  if (d.error) {
+    el('schemaContent').innerHTML = `<div class="error-box" style="margin:1rem">${d.error}</div>`;
+    return;
+  }
+
+  const cols = d.columns || [];
+  el('schemaContent').innerHTML = `
+    <h2 style="font-size:1.125rem;margin-bottom:1.25rem">Schema: <span style="color:var(--accent)">${S.activeTable}</span></h2>
+    <div class="grid-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>#</th><th>Column</th><th>Type</th><th>PK</th><th>NOT NULL</th>
+        </tr></thead>
+        <tbody>
+          ${cols.map((c, i) => `<tr>
+            <td class="td-num">${i + 1}</td>
+            <td class="${c.pk ? 'td-pk' : ''}">${c.name}</td>
+            <td class="td-bool">${c.type || 'ANY'}</td>
+            <td>${c.pk ? '✓' : ''}</td>
+            <td>${c.notnull ? '✓' : ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:1rem;font-size:.8125rem;color:var(--muted)">${cols.length} column(s) total</div>
+    <div style="margin-top:.625rem">
+      <button class="toolbar-btn" onclick="el('sqlEditor').value='SELECT * FROM [${S.activeTable}] LIMIT 50;'; switchTab('query')">
+        → Open in SQL editor
+      </button>
+    </div>
+  `;
+}
+
+/* ────────────────────────────────────────────────────────
+   TABS
+──────────────────────────────────────────────────────── */
+function switchTab(tab) {
+  S.tab = tab;
+  ['browse', 'query', 'schema'].forEach(t => {
+    el('tab' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = t === tab ? (t === 'query' ? 'flex' : 'flex') : 'none';
+    document.querySelector(`.tab[data-tab="${t}"]`).classList.toggle('active', t === tab);
+  });
+  // Fix display for non-flex tabs
+  el('tabBrowse').style.display = tab === 'browse' ? 'flex' : 'none';
+  el('tabQuery').style.display = tab === 'query' ? 'flex' : 'none';
+  el('tabSchema').style.display = tab === 'schema' ? 'flex' : 'none';
+
+  if (tab === 'schema') loadSchema();
+}
+
+/* ────────────────────────────────────────────────────────
+   STATS BAR
+──────────────────────────────────────────────────────── */
+function updateStats() {
+  el('statDb').textContent    = S.activeFile?.name || '—';
+  el('statTable').textContent = S.activeTable || '—';
+  el('statRows').textContent  = S.total ? S.total.toLocaleString() : '—';
+  const pg = S.total ? Math.floor(S.offset / S.limit) + 1 : '—';
+  const tp = S.total ? Math.ceil(S.total / S.limit) : '—';
+  el('statPage').textContent  = S.total ? `${pg} / ${tp}` : '—';
+}
+
+/* ────────────────────────────────────────────────────────
+   KEYBOARD SHORTCUTS
+──────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (S.tab === 'query') runQuery();
+  }
+  if (e.key === 'Enter' && (e.target.id === 'uname' || e.target.id === 'upass')) {
+    doLogin();
+  }
+});
+
+/* ────────────────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────────────────── */
+checkAuth();
+</script>
+</body>
+</html>
