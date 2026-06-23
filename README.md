@@ -1,4 +1,4 @@
-# Nexonic — Tudásmentő Rendszer / Knowledge Preservation System
+# Nexanic — Tudásmentő Rendszer / Knowledge Preservation System
 
 > *Mielőtt elfelejtik. / Before it's forgotten.*
 
@@ -26,10 +26,9 @@ python app.py
 
 | URL | Leírás |
 |-----|--------|
-| `http://localhost:5000` | Főoldal (HU/EN) |
-| `http://localhost:5000/admin` | Admin felület |
+| `http://localhost:5005` | Főoldal (HU/EN) |
+| `http://localhost:5005/admin` | Admin felület |
 
-**Admin belépés:** `admin` / `admin`
 
 ---
 
@@ -121,18 +120,10 @@ SECRET_KEY=...      # Flask session kulcs (éles környezetben kötelező!)
 ```bash
 # Gunicorn (ajánlott)
 pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-```
-
-### Admin jelszó megváltoztatása / Change admin password
-
-Az `app.py` fájlban:
-```python
-ADMIN_USER = "admin"   # ← ide az új felhasználónév
-ADMIN_PASS = "admin"   # ← ide az új jelszó
+gunicorn -w 4 -b 0.0.0.0:5005 app:app
 ```
 
 ---
 
-*Nexonic — robotikus tudásmentő rendszer.*  
+*Nexanic — robotikus tudásmentő rendszer.*  
 *Mielőtt elfelejtik.*
