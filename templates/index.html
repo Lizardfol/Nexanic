@@ -145,6 +145,614 @@ h1,h2,h3{letter-spacing:-.025em;font-weight:600}
 .kcard .topic{font-size:1.0625rem;font-weight:600}
 .kcard .out{margin-top:.875rem;font-size:13.5px;color:var(--muted)}
 .kcard:hover .out{color:rgba(250,250,250,.6)}
+/* ── GitHub file list in Tudástár ─────────────────────── */
+.gh-file-list{margin-top:2.5rem;border-top:1px solid var(--border);padding-top:2rem}
+.gh-file-list-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1rem}
+.gh-files{display:flex;flex-direction:column;gap:.375rem}
+.gh-file-item{
+  display:flex;align-items:center;gap:.75rem;padding:.625rem .875rem;
+  border:1px solid var(--border);border-radius:.625rem;background:var(--card);
+  font-size:.875rem;color:var(--fg);text-decoration:none;transition:.18s
+}
+.gh-file-item:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.gh-file-icon{font-size:1.1rem;flex-shrink:0}
+.gh-file-name{flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gh-file-arrow{color:var(--muted);font-size:.75rem;flex-shrink:0}
+.gh-empty{font-size:.875rem;color:var(--muted);padding:.75rem 0}
+.gh-loading{display:flex;align-items:center;gap:.625rem;font-size:.875rem;color:var(--muted);padding:.5rem 0}
+.gh-spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:ghspin .7s linear infinite;flex-shrink:0}
+@keyframes ghspin{to{transform:rotate(360deg)}}
+/* ── Map ─────────────────────────────────────────────── */
+.map-frame{margin-top:3rem;border:1px solid var(--border);border-radius:1.5rem;background:var(--card);padding:2rem;overflow:hidden}
+.map-frame svg{width:100%;height:auto;display:block}
+/* ── Dark band ───────────────────────────────────────── */
+.dark-band{background:var(--band-bg);color:var(--band-fg);padding:5.5rem 0;transition:background .3s,color .3s}
+.dark-band p{max-width:50rem;margin:0 auto;text-align:center;font-size:clamp(1.5rem,3.5vw,2.625rem);font-weight:500;letter-spacing:-.025em;line-height:1.22}
+/* ── Footer ──────────────────────────────────────────── */
+footer{border-top:1px solid var(--border);padding:2.5rem 0}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-inner span,.footer-inner a{font-size:13.5px;color:var(--muted)}
+.footer-inner a:hover{color:var(--fg)}
+/* ── Fade-in ─────────────────────────────────────────── */
+.fade{opacity:0;transform:translateY(14px);transition:opacity .75s ease,transform .75s ease}
+.fade.in{opacity:1;transform:none}
+/* ── Reduce motion ───────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){.fade{opacity:1;transform:none;transition:none}.lang-overlay{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- ── Language selection popup ──────────────────────────────────────── -->
+<div class="lang-overlay" id="langOverlay">
+  <div class="lang-modal">
+    <div class="logo-wrap"><span class="dot"></span> Nexanic</div>
+    <h2>Welcome / Üdvözöljük</h2>
+    <p>Choose your preferred language / Válasszon nyelvet</p>
+    <div class="lang-options">
+      <button class="lang-btn" onclick="setLang('en')">
+        <span class="flag">🇬🇧</span>
+        <span>English</span>
+      </button>
+      <button class="lang-btn" onclick="setLang('hu')">
+        <span class="flag">🇭🇺</span>
+        <span>Magyar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Navigation ─────────────────────────────────────────────────────── -->
+<header>
+  <div class="wrap nav">
+    <button class="back-btn" id="backBtn" onclick="history.back()" aria-label="Go back">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span data-en="Back" data-hu="Vissza">Vissza</span>
+    </button>
+    <a class="brand" href="#top"><span class="dot"></span> Nexanic</a>
+    <nav class="nav-links">
+      <a href="#problem" data-en="Problem" data-hu="Probléma">Probléma</a>
+      <a href="#how" data-en="How it works" data-hu="Hogyan működik">Hogyan működik</a>
+      <a href="#rescue" data-en="Knowledge" data-hu="Tudástár">Tudástár</a>
+      <a href="#map" data-en="Map" data-hu="Térkép">Térkép</a>
+    </nav>
+    <div class="nav-ctrl">
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle theme">
+        <span id="themeIcon">🌙</span>
+      </button>
+      <button class="icon-btn" id="langBtn" onclick="cycleLang()" aria-label="Switch language" title="Language" style="font-size:12px;font-weight:600;letter-spacing:.04em" id="langLabel">HU</button>
+      <a class="btn btn-outline" href="/admin" data-en="Admin" data-hu="Admin">Admin</a>
+      <a class="btn btn-dark" href="#rescue" data-en="Explore" data-hu="Megnézem">Megnézem</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+  <section class="hero wrap">
+    <div class="hero-chip fade">
+      <span class="dot"></span>
+      <span data-en="Animatronic knowledge preservation robot" data-hu="Animatronikus tudásmentő rendszer">Animatronikus tudásmentő rendszer</span>
+    </div>
+    <h1 class="brand-big fade">NEXANIC</h1>
+    <p class="slogan fade" data-en="We preserve dying knowledge." data-hu="A kihaló tudást őrizzük meg.">A kihaló tudást őrizzük meg.</p>
+    <p class="tag fade"><span class="hl" data-en="Before it's forgotten." data-hu="Mielőtt elfelejtik.">Mielőtt elfelejtik.</span></p>
+    <p class="sub fade" data-en="Nexonic preserves practical knowledge that is often never written down anywhere. One conversation at a time." data-hu="A Nexonic olyan gyakorlati tudást őriz meg, amely gyakran sehol sincs leírva. Egy beszélgetés egyszerre.">A Nexonic olyan gyakorlati tudást őriz meg, amely gyakran sehol sincs leírva. Egy beszélgetés egyszerre.</p>
+    <div class="ctas fade">
+      <a class="btn btn-dark" href="#rescue" data-en="Explore the knowledge base →" data-hu="Megnézem a tudástárat →">Megnézem a tudástárat →</a>
+      <a class="btn btn-outline" href="#how" data-en="How does it work?" data-hu="Hogyan működik?">Hogyan működik?</a>
+    </div>
+  </section>
+
+  <!-- ── Quote ──────────────────────────────────────────────────────────── -->
+  <section class="quote-section wrap fade">
+    <blockquote class="quote" data-en="Every person lost is the loss of an irreplaceable source of knowledge." data-hu="Minden elveszített ember egy pótolhatatlan tudásforrás elvesztése.">Minden elveszített ember egy pótolhatatlan tudásforrás elvesztése.</blockquote>
+  </section>
+
+  <!-- ── Examples ───────────────────────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="examples-wrap fade">
+      <div class="eyebrow" data-en="For example:" data-hu="Például:">Például:</div>
+      <ul class="ex-list">
+        <li class="ex-item"><span class="t" data-en="ZIL gearbox repair" data-hu="ZIL váltó javítása">ZIL váltó javítása</span><span class="n">01 / 05</span></li>
+        <li class="ex-item"><span class="t" data-en="Tirpák pickling method" data-hu="Tirpák savanyítás">Tirpák savanyítás</span><span class="n">02 / 05</span></li>
+        <li class="ex-item"><span class="t" data-en="Traditional beekeeping" data-hu="Régi méhészeti technikák">Régi méhészeti technikák</span><span class="n">03 / 05</span></li>
+        <li class="ex-item"><span class="t" data-en="Local legends" data-hu="Helyi legendák">Helyi legendák</span><span class="n">04 / 05</span></li>
+        <li class="ex-item"><span class="t" data-en="Forgotten crafts" data-hu="Elfeledett szakmák">Elfeledett szakmák</span><span class="n">05 / 05</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── Problem ────────────────────────────────────────────────────────── -->
+  <section id="problem" class="wrap">
+    <div class="eyebrow fade" data-en="The problem" data-hu="A probléma">A probléma</div>
+    <div class="stat-row fade">
+      <div class="stat" id="statNum">0%</div>
+      <p style="color:var(--muted);font-size:1.125rem;max-width:24rem;padding-bottom:1rem" data-en="The majority of elderly people are completely excluded from digital solutions from the start." data-hu="Az idősek többségét a digitális megoldások eleve kizárják.">Az idősek többségét a digitális megoldások eleve kizárják.</p>
+    </div>
+    <p class="body-big fade">
+      <span class="hl" data-en="Every day, knowledge disappears that no one ever wrote down." data-hu="Minden nap eltűnik olyan tudás, amelyet soha senki nem írt le.">Minden nap eltűnik olyan tudás, amelyet soha senki nem írt le.</span>
+    </p>
+    <div class="grid3 fade">
+      <div>
+        <div class="eyebrow">01</div>
+        <h3 style="margin-top:1rem;font-size:1.1875rem" data-en="Forgotten crafts" data-hu="Elfeledett mesterségek">Elfeledett mesterségek</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.9rem" data-en="Trades passed from father to son — and now the chain is broken." data-hu="Szakmák, amelyek apáról fiúra szálltak — és most megszakad a lánc.">Szakmák, amelyek apáról fiúra szálltak — és most megszakad a lánc.</p>
+      </div>
+      <div>
+        <div class="eyebrow">02</div>
+        <h3 style="margin-top:1rem;font-size:1.1875rem" data-en="Disappearing local knowledge" data-hu="Eltűnő helyi tudás">Eltűnő helyi tudás</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.9rem" data-en="Recipes, methods, techniques that only exist in one single village." data-hu="Receptek, módszerek, fogások, amik csak egy faluban léteznek.">Receptek, módszerek, fogások, amik csak egy faluban léteznek.</p>
+      </div>
+      <div>
+        <div class="eyebrow">03</div>
+        <h3 style="margin-top:1rem;font-size:1.1875rem" data-en="The generational gap" data-hu="Generációs szakadék">Generációs szakadék</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.9rem" data-en="The elderly don't write blogs. The young don't read books." data-hu="Az idősek nem írnak blogot. A fiatalok nem olvasnak könyvet.">Az idősek nem írnak blogot. A fiatalok nem olvasnak könyvet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How it works ───────────────────────────────────────────────────── -->
+  <section id="how" class="wrap">
+    <div class="eyebrow fade" data-en="How it works" data-hu="Hogyan működik">Hogyan működik</div>
+    <h2 class="fade" style="font-size:clamp(2.25rem,5vw,3.75rem);margin-top:1rem;max-width:40rem" data-en="Four steps. One goal." data-hu="Négy lépés. Egy cél.">Négy lépés. Egy cél.</h2>
+    <p class="fade" style="margin-top:1rem;color:var(--muted);font-size:1.0625rem;max-width:38rem" data-en="Preserving knowledge that traditional digitalization loses forever." data-hu="Megőrizni azt a tudást, amit a hagyományos digitalizáció elveszít.">Megőrizni azt a tudást, amit a hagyományos digitalizáció elveszít.</p>
+    <ol class="steps-grid fade">
+      <li>
+        <div class="step-num">1</div>
+        <h3 style="margin-top:1.375rem;font-size:1.0625rem" data-en="The robot talks." data-hu="A robot beszélget.">A robot beszélget.</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.875rem" data-en="Natural conversation, with patience and warmth." data-hu="Természetes párbeszéd, türelemmel.">Természetes párbeszéd, türelemmel.</p>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <h3 style="margin-top:1.375rem;font-size:1.0625rem" data-en="AI processes." data-hu="Az AI feldolgozza.">Az AI feldolgozza.</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.875rem" data-en="Real-time transcript, context, keywords." data-hu="Átirat, kontextus, kulcsszavak.">Átirat, kontextus, kulcsszavak.</p>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <h3 style="margin-top:1.375rem;font-size:1.0625rem" data-en="Knowledge is organized." data-hu="A tudást rendszerezi.">A tudást rendszerezi.</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.875rem" data-en="Categories, people, places, timelines." data-hu="Kategóriák, személyek, helyszínek.">Kategóriák, személyek, helyszínek.</p>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <h3 style="margin-top:1.375rem;font-size:1.0625rem" data-en="Preserved for the future." data-hu="A jövőnek megőrzi.">A jövőnek megőrzi.</h3>
+        <p style="margin-top:.625rem;color:var(--muted);font-size:.875rem" data-en="Searchable, authentic, bilingual." data-hu="Kereshetően, hitelesen, kétnyelvűen.">Kereshetően, hitelesen, kétnyelvűen.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Story / dialogue ───────────────────────────────────────────────── -->
+  <section class="story-band">
+    <div class="wrap story-inner">
+      <div class="fade">
+        <div class="eyebrow" data-en="In practice" data-hu="A valóságban">A valóságban</div>
+        <h2 style="font-size:clamp(1.75rem,3.5vw,2.75rem);margin-top:1rem;max-width:28rem" data-en="Nexonic sits down next to Erzsébet." data-hu="A Nexanic leül Erzsébet néni mellé.">A Nexanic leül Erzsébet néni mellé.</h2>
+        <p style="margin-top:1rem;color:var(--muted);font-size:.9375rem;max-width:28rem;line-height:1.7" data-en="A caregiver places the robot in front of Erzsébet. No apps, no screens, no technical knowledge required. Just her voice." data-hu="A gondozó bekapcsolja és Erzsébet néni elé helyezi. Nincs app, nincs képernyő, semmi technikai tudás. Csak a hangja.">A gondozó bekapcsolja és Erzsébet néni elé helyezi. Nincs app, nincs képernyő, semmi technikai tudás. Csak a hangja.</p>
+        <p style="margin-top:1rem;color:var(--muted);font-size:.875rem;max-width:28rem;line-height:1.7" data-en="After 3–5 focused questions, Nexonic summarizes what it heard and saves it. A month later, when a school visits the nursing home, it retells the story — dramatized, live." data-hu="3–5 kérdés után összefoglalja, amit hallott, és elmenti. Egy hónappal később, amikor egy iskola meglátogatja az otthont, visszameséli — dramatizálva, élőn.">3–5 kérdés után összefoglalja, amit hallott, és elmenti. Egy hónappal később, amikor egy iskola meglátogatja az otthont, visszameséli — dramatizálva, élőn.</p>
+      </div>
+      <div class="dialogue fade">
+        <div class="bubble robot">
+          <div class="speaker">Nexanic</div>
+          <span data-en="Good afternoon! I'd love to hear about a local custom or memory. Could you tell me something that's important to you?" data-hu="Jó napot! Nagyon szívesen hallgatnék egy helyi szokásról vagy emlékről. Meselne nekem valamit, ami fontos Önnek?">Jó napot! Nagyon szívesen hallgatnék egy helyi szokásról vagy emlékről. Meselne nekem valamit, ami fontos Önnek?</span>
+        </div>
+        <div class="bubble human">
+          <div class="speaker">Erzsébet</div>
+          <span data-en="Well, when I was young, we had a special way of making cabbage... My mother taught me, and her mother before her..." data-hu="Hát, amikor fiatal voltam, mi így csináltuk a káposztát... Anyám tanított rá, és az ő anyja előtte...">Hát, amikor fiatal voltam, mi így csináltuk a káposztát... Anyám tanított rá, és az ő anyja előtte...</span>
+        </div>
+        <div class="bubble robot">
+          <div class="speaker">Nexanic</div>
+          <span data-en="That's wonderful. Could you tell me more about the spices? How did your mother know the right proportions?" data-hu="Ez csodálatos. Meselne a fűszerekről bővebben? Hogyan tudta az édesanyja, hogy mennyi kell?">Ez csodálatos. Meselne a fűszerekről bővebben? Hogyan tudta az édesanyja, hogy mennyi kell?</span>
+        </div>
+        <div class="bubble human">
+          <div class="speaker">Erzsébet</div>
+          <span data-en="She always said: as much as fits in your palm. No scales. Just feel." data-hu="Mindig azt mondta: amennyit a tenyered befogad. Nem mérleg. Csak érzés.">Mindig azt mondta: amennyit a tenyered befogad. Nem mérleg. Csak érzés.</span>
+        </div>
+        <div class="bubble robot">
+          <div class="speaker">Nexanic</div>
+          <span data-en="Thank you for sharing this with me. I've saved it." data-hu="Köszönöm, amit megosztott velem. Ezt megőriztem.">Köszönöm, amit megosztott velem. Ezt megőriztem.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Innovation pillars ──────────────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="eyebrow fade" data-en="Key innovation" data-hu="Kulcsinnovació">Kulcsinnovació</div>
+    <h2 class="fade" style="font-size:clamp(2rem,4vw,3.25rem);margin-top:1rem;max-width:44rem" data-en="The first robot designed exclusively to collect cultural heritage from the elderly." data-hu="Az első robot, amelyet kifejezetten idősek kulturális örökségének gyűjtésére terveztek.">Az első robot, amelyet kifejezetten idősek kulturális örökségének gyűjtésére terveztek.</h2>
+    <div class="pillars fade">
+      <div class="pillar">
+        <div class="pillar-icon">🚶</div>
+        <div class="pillar-body">
+          <h3 data-en="Proactive presence" data-hu="Proaktív jelenlét">Proaktív jelenlét</h3>
+          <p data-en="The robot doesn't wait — it goes where people are. Nursing homes, community spaces, libraries." data-hu="A robot nem vár — oda megy, ahol az emberek vannak. Idősotthonok, közösségi terek, könyvtárak.">A robot nem vár — oda megy, ahol az emberek vannak. Idősotthonok, közösségi terek, könyvtárak.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🎙️</div>
+        <div class="pillar-body">
+          <h3 data-en="Interface-free access" data-hu="Interfészmentes hozzáférés">Interfészmentes hozzáférés</h3>
+          <p data-en="Zero technical knowledge required from the user. Only their voice is needed." data-hu="A felhasználónak nulla technikai tudás kell. Csak a hangjára van szüksége.">A felhasználónak nulla technikai tudás kell. Csak a hangjára van szüksége.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">👁️</div>
+        <div class="pillar-body">
+          <h3 data-en="Emotional connection" data-hu="Emotív kapcsolat">Emotív kapcsolat</h3>
+          <p data-en="Animatronic eyes, NeoPixel mouth, and a warm patient voice create emotional safety — especially important for people with dementia." data-hu="Az animatronikus szemek, a NeoPixel száj és a meleg, türelmes hang érzelmi biztonságot teremtenek — különösen fontos demenciával küzdő személyeknél.">Az animatronikus szemek, a NeoPixel száj és a meleg, türelmes hang érzelmi biztonságot teremtenek.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🗂️</div>
+        <div class="pillar-body">
+          <h3 data-en="Structured archiving" data-hu="Strukturált archiválás">Strukturált archiválás</h3>
+          <p data-en="AI doesn't just record — it organizes. Key quotes, themes, temporal context extracted automatically." data-hu="Az AI nem csak rögzíti, hanem szervezi is a tudást — kulcsidézetek, témák, időbeli kontextus kinyerésével.">Az AI nem csak rögzíti, hanem szervezi is a tudást — kulcsidézetek, témák, időbeli kontextus kinyerésével.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🎭</div>
+        <div class="pillar-body">
+          <h3 data-en="Retelling" data-hu="Visszamondás">Visszamondás</h3>
+          <p data-en="Archived material comes back to life — dramatized, in the community. Not just a database, but a living cultural mediator." data-hu="Az archivált anyag élőn, dramatizáltan kerül vissza a közösségbe — nem puszta adattár, hanem eleven kulturális közvetítő.">Az archivált anyag élőn, dramatizáltan kerül vissza a közösségbe — eleven kulturális közvetítő.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Knowledge rescue ────────────────────────────────────────────────── -->
+  <section id="rescue" class="rescue-band">
+    <div class="wrap">
+      <div class="eyebrow fade" data-en="Preserved by the robot" data-hu="A robot menti meg">A robot menti meg</div>
+      <h2 class="fade" style="font-size:clamp(1.75rem,3.5vw,2.75rem);margin-top:1rem;max-width:38rem" data-en="Specific knowledge that cannot be recovered tomorrow." data-hu="Konkrét tudás, amit holnap már nem lehet visszaszerezni.">Konkrét tudás, amit holnap már nem lehet visszaszerezni.</h2>
+      <div class="card-grid fade">
+        <div class="kcard">
+          <div class="topic" data-en="ZIL gearbox repair" data-hu="ZIL váltó javítása">ZIL váltó javítása</div>
+          <div class="out" data-en="→ old diagnostic methods" data-hu="→ régi hibakeresési módszerek">→ régi hibakeresési módszerek</div>
+        </div>
+        <div class="kcard">
+          <div class="topic" data-en="Tirpák pickling" data-hu="Tirpák savanyítás">Tirpák savanyítás</div>
+          <div class="out" data-en="→ traditional recipes" data-hu="→ hagyományos receptek">→ hagyományos receptek</div>
+        </div>
+        <div class="kcard">
+          <div class="topic" data-en="Beekeeping techniques" data-hu="Méhészeti technikák">Méhészeti technikák</div>
+          <div class="out" data-en="→ generational knowledge" data-hu="→ generációs tudás">→ generációs tudás</div>
+        </div>
+        <div class="kcard">
+          <div class="topic" data-en="Local legends" data-hu="Helyi legendák">Helyi legendák</div>
+          <div class="out" data-en="→ community memory" data-hu="→ közösségi emlékezet">→ közösségi emlékezet</div>
+        </div>
+        <div class="kcard">
+          <div class="topic" data-en="Forgotten crafts" data-hu="Elfeledett szakmák">Elfeledett szakmák</div>
+          <div class="out" data-en="→ trade secrets" data-hu="→ mesterségbeli fogások">→ mesterségbeli fogások</div>
+        </div>
+        <div class="kcard">
+          <div class="topic" data-en="Woodworking joints" data-hu="Asztalos csapolási technikák">Asztalos csapolási technikák</div>
+          <div class="out" data-en="→ 19th century methods" data-hu="→ XIX. századi módszerek">→ XIX. századi módszerek</div>
+        </div>
+      </div>
+
+      <!-- Dynamically loaded files from GitHub /database folder -->
+      <div class="gh-file-list fade" id="ghFileList">
+        <div class="gh-file-list-title" data-en="Uploaded Files" data-hu="Feltöltött fájlok">Feltöltött fájlok</div>
+        <div id="ghFileInner">
+          <div class="gh-loading"><div class="gh-spinner"></div> Betöltés…</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Map ────────────────────────────────────────────────────────────── -->
+  <section id="map" class="wrap">
+    <div class="eyebrow fade" data-en="Hungary" data-hu="Magyarország">Magyarország</div>
+    <h2 class="fade" style="font-size:clamp(2.25rem,5vw,3.75rem);margin-top:1rem" data-en="Where the knowledge comes from" data-hu="Honnan jön a tudás">Honnan jön a tudás</h2>
+    <div class="map-frame fade">
+      <svg viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8,30 Q14,18 24,16 Q36,12 48,14 Q60,10 72,14 Q84,16 92,22 Q96,30 92,40 Q86,52 74,58 Q60,64 46,62 Q32,64 20,58 Q10,50 6,40 Z" fill="var(--sec-bg)" stroke="var(--border)" stroke-width=".5"/>
+        <g>
+          <circle cx="78" cy="28" r="2.2" fill="var(--accent)"/>
+          <circle cx="78" cy="28" r="1.2" fill="var(--acc-fg)"/>
+          <text x="81.5" y="27" font-size="2.6" font-weight="600" fill="var(--fg)" font-family="Inter,sans-serif">Nyíregyháza</text>
+        </g>
+        <g>
+          <circle cx="76" cy="38" r="2.2" fill="var(--accent)"/>
+          <circle cx="76" cy="38" r="1.2" fill="var(--acc-fg)"/>
+          <text x="79.5" y="37" font-size="2.6" font-weight="600" fill="var(--fg)" font-family="Inter,sans-serif">Debrecen</text>
+        </g>
+        <g>
+          <circle cx="70" cy="57" r="2.2" fill="var(--accent)"/>
+          <circle cx="70" cy="57" r="1.2" fill="var(--acc-fg)"/>
+          <text x="73.5" y="56" font-size="2.6" font-weight="600" fill="var(--fg)" font-family="Inter,sans-serif">Békéscsaba</text>
+        </g>
+        <g>
+          <circle cx="43" cy="38" r="2.2" fill="var(--accent)"/>
+          <circle cx="43" cy="38" r="1.2" fill="var(--acc-fg)"/>
+          <text x="46.5" y="37" font-size="2.6" font-weight="600" fill="var(--fg)" font-family="Inter,sans-serif">Budapest</text>
+        </g>
+        <g>
+          <circle cx="22" cy="42" r="2.2" fill="var(--border)"/>
+          <circle cx="22" cy="42" r="1.2" fill="var(--muted)"/>
+          <text x="25.5" y="41" font-size="2.6" font-weight="600" fill="var(--muted)" font-family="Inter,sans-serif" data-en="Pécs" data-hu="Pécs">Pécs</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ── Dark band ──────────────────────────────────────────────────────── -->
+  <section class="dark-band">
+    <div class="wrap">
+      <p data-en="We preserve for the future the knowledge that no one ever wrote down." data-hu="A jövőnek mentjük meg azt a tudást, amit soha senki nem írt le.">A jövőnek mentjük meg azt a tudást, amit soha senki nem írt le.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span data-en="Nexonic — animatronic knowledge preservation robot." data-hu="Nexonic — animatronikus tudásmentő rendszer.">Nexonic — animatronikus tudásmentő rendszer.</span>
+    <div style="display:flex;gap:1.5rem;align-items:center">
+      <span data-en="Before it's forgotten." data-hu="Mielőtt elfelejtik.">Mielőtt elfelejtik.</span>
+      <a href="/admin" style="color:var(--muted)" data-en="Admin panel" data-hu="Admin felület">Admin felület</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* ── Constants ── */
+  const LANG_KEY  = 'nexonic_lang';
+  const THEME_KEY = 'nexonic_theme';
+
+  /* ── Language ── */
+  let lang = localStorage.getItem(LANG_KEY);
+
+  function applyLang(l) {
+    lang = l;
+    localStorage.setItem(LANG_KEY, l);
+    document.documentElement.lang = l;
+
+    document.querySelectorAll('[data-en][data-hu]').forEach(el => {
+      const txt = el.getAttribute('data-' + l);
+      if (txt !== null) el.textContent = txt;
+    });
+
+    const langLabel = document.getElementById('langBtn');
+    if (langLabel) langLabel.textContent = l === 'en' ? 'EN' : 'HU';
+
+    const titleMap = {
+      en: 'Nexonic — Before it\'s forgotten.',
+      hu: 'Nexonic — Mielőtt elfelejtik.'
+    };
+    document.title = titleMap[l] || document.title;
+  }
+
+  window.setLang = function (l) {
+    applyLang(l);
+    const overlay = document.getElementById('langOverlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => overlay.remove(), 400);
+  };
+
+  window.cycleLang = function () {
+    setLang(lang === 'en' ? 'hu' : 'en');
+  };
+
+  /* ── Theme ── */
+  const savedTheme = localStorage.getItem(THEME_KEY) ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem(THEME_KEY, t);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = t === 'dark' ? '☀️' : '🌙';
+  }
+
+  window.toggleTheme = function () {
+    const cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  };
+
+  applyTheme(savedTheme);
+
+  /* ── Back button ── */
+  if (window.history.length > 1) {
+    const btn = document.getElementById('backBtn');
+    if (btn) btn.style.display = 'inline-flex';
+  }
+
+  /* ── Language popup ── */
+  if (lang) {
+    /* Already chosen — skip popup */
+    const overlay = document.getElementById('langOverlay');
+    if (overlay) overlay.remove();
+    applyLang(lang);
+  }
+  /* If no lang, popup stays visible */
+
+  /* ── Intersection observer (fade-in + stat) ── */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('in');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade').forEach(el => io.observe(el));
+
+  /* ── Count-up stat ── */
+  const statEl = document.getElementById('statNum');
+  if (statEl) {
+    const target = 67;
+    const countIo = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        let n = 0;
+        const step = () => {
+          n = Math.min(n + 2, target);
+          statEl.textContent = n + '%';
+          if (n < target) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+        countIo.disconnect();
+      });
+    }, { threshold: 0.5 });
+    countIo.observe(statEl);
+  }
+  /* ── GitHub database file list ── */
+  (function loadGhFiles() {
+    const GH_API = 'https://api.github.com/repos/Lizardfol/Nexanic/contents/database';
+    const FILE_ICONS = { json:'🔧', mp3:'🎵', mp4:'🎬', txt:'📝' };
+
+    function renderFiles(files) {
+      const inner = document.getElementById('ghFileInner');
+      if (!inner) return;
+
+      const relevant = files.filter(f =>
+        f.type === 'file' && /\.(json|mp3|mp4|txt)$/i.test(f.name)
+      );
+
+      if (!relevant.length) {
+        inner.innerHTML = '<p class="gh-empty">Még nincs feltöltött fájl.</p>';
+        return;
+      }
+
+      const rows = relevant.map(f => {
+        const ext  = f.name.split('.').pop().toLowerCase();
+        const icon = FILE_ICONS[ext] || '📄';
+        const url  = f.html_url;
+        return `<a class="gh-file-item" href="${url}" target="_blank" rel="noopener">
+          <span class="gh-file-icon">${icon}</span>
+          <span class="gh-file-name">${f.name}</span>
+          <span class="gh-file-arrow">↗</span>
+        </a>`;
+      }).join('');
+
+      inner.innerHTML = `<div class="gh-files">${rows}</div>`;
+    }
+
+    fetch(GH_API)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) renderFiles(data);
+        else throw new Error('unexpected response');
+      })
+      .catch(() => {
+        const inner = document.getElementById('ghFileInner');
+        if (inner) inner.innerHTML = '<p class="gh-empty">Nem sikerült betölteni a fájllistát.</p>';
+      });
+  })();
+})();
+</script>
+</body>
+</html>
+  --sec-bg:  #111111;
+  --popup-bg:rgba(0,0,0,.75);
+  --shadow:  0 2px 16px rgba(0,0,0,.4);
+}
+/* ── Reset ───────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;transition:background .3s,color .3s}
+::selection{background:var(--accent);color:var(--acc-fg)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+/* ── Layout ──────────────────────────────────────────── */
+.wrap{max-width:76rem;margin:0 auto;padding:0 1.5rem}
+/* ── Language popup ──────────────────────────────────── */
+.lang-overlay{position:fixed;inset:0;z-index:9999;background:var(--popup-bg);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;transition:opacity .35s}
+.lang-overlay.hidden{opacity:0;pointer-events:none}
+.lang-modal{background:var(--card);border:1px solid var(--border);border-radius:1.5rem;padding:3rem 2.5rem 2.5rem;max-width:440px;width:90%;text-align:center;box-shadow:var(--shadow)}
+.lang-modal .logo-wrap{display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;font-size:1.125rem;margin-bottom:2rem}
+.lang-modal .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.lang-modal h2{font-size:1.5rem;font-weight:600;letter-spacing:-.025em;margin-bottom:.5rem}
+.lang-modal p{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.lang-options{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.lang-btn{display:flex;flex-direction:column;align-items:center;gap:.625rem;padding:1.25rem 1rem;border-radius:1rem;border:1.5px solid var(--border);background:var(--bg);color:var(--fg);font-size:.875rem;font-weight:500;transition:.18s}
+.lang-btn:hover{border-color:var(--accent);background:var(--accent);color:var(--acc-fg)}
+.lang-btn .flag{font-size:2rem;line-height:1}
+/* ── Header ──────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);transition:background .3s,border-color .3s}
+.nav{display:flex;align-items:center;height:64px;gap:1rem;flex-wrap:nowrap}
+.back-btn{display:none;align-items:center;gap:.375rem;padding:.4rem .75rem;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;transition:.18s;white-space:nowrap}
+.back-btn:hover{border-color:var(--fg);color:var(--fg)}
+.back-btn svg{flex-shrink:0}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:1rem}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:.25rem;margin-left:.5rem}
+.nav-links a{color:var(--muted);font-size:13.5px;padding:.35rem .65rem;border-radius:.5rem;transition:.15s}
+.nav-links a:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.nav-ctrl{display:flex;align-items:center;gap:.5rem;margin-left:auto}
+.icon-btn{width:36px;height:36px;border-radius:.625rem;border:1px solid var(--border);background:transparent;color:var(--fg);display:inline-flex;align-items:center;justify-content:center;font-size:15px;transition:.18s;flex-shrink:0}
+.icon-btn:hover{border-color:var(--accent);background:var(--accent);color:var(--acc-fg)}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.25rem;border-radius:999px;font-size:13.5px;font-weight:500;transition:.2s;white-space:nowrap;border:1px solid transparent}
+.btn-dark{background:var(--fg);color:var(--bg)}
+.btn-dark:hover{opacity:.82}
+.btn-outline{border-color:var(--border);background:transparent;color:var(--fg)}
+.btn-outline:hover{background:var(--accent);border-color:var(--accent);color:var(--acc-fg)}
+@media(max-width:768px){.nav-links{display:none}}
+/* ── Sections ────────────────────────────────────────── */
+section{padding:5.5rem 0}
+.eyebrow{font-size:11.5px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+h1,h2,h3{letter-spacing:-.025em;font-weight:600}
+/* ── Hero ────────────────────────────────────────────── */
+.hero{text-align:center;padding:9rem 0 7rem}
+.hero-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .875rem;border:1px solid var(--border);border-radius:999px;background:var(--card);font-size:12px;color:var(--muted);font-weight:500}
+.hero-chip .dot{width:6px;height:6px}
+.brand-big{font-size:clamp(4rem,13vw,8rem);font-weight:600;line-height:.92;letter-spacing:-.05em;margin-top:2.5rem}
+.slogan{margin-top:1.75rem;font-size:clamp(1.25rem,2.5vw,1.875rem);font-weight:500}
+.tag{margin-top:.625rem;color:var(--muted)}
+.hl{background:linear-gradient(transparent 58%,var(--accent) 58%);padding:0 .2rem}
+.sub{margin:2.5rem auto 0;max-width:40rem;font-size:1.0625rem;color:var(--muted);line-height:1.7}
+.ctas{margin-top:2.75rem;display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.ctas .btn{padding:.875rem 1.625rem;font-size:.9375rem}
+/* ── Quote ───────────────────────────────────────────── */
+.quote-section .quote{max-width:48rem;margin:0 auto;padding-left:2.25rem;border-left:2.5px solid var(--accent);font-size:clamp(1.5rem,3.5vw,2.375rem);font-weight:500;line-height:1.22;letter-spacing:-.025em}
+/* ── Example list ────────────────────────────────────── */
+.examples-wrap{display:grid;grid-template-columns:1fr 2.5fr;gap:3rem;align-items:start}
+@media(max-width:640px){.examples-wrap{grid-template-columns:1fr}}
+.ex-list{border-top:1px solid var(--border)}
+.ex-item{display:flex;align-items:baseline;justify-content:space-between;padding:1.125rem 0;border-bottom:1px solid var(--border);list-style:none;transition:padding .2s,color .15s;cursor:default}
+.ex-item:hover{padding-left:.625rem}
+.ex-item .t{font-size:clamp(1.25rem,2.5vw,1.875rem);font-weight:600;letter-spacing:-.025em}
+.ex-item .n{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* ── Problem ─────────────────────────────────────────── */
+.stat-row{display:grid;grid-template-columns:auto 1fr;gap:2.5rem;align-items:end;margin-top:2rem}
+@media(max-width:640px){.stat-row{grid-template-columns:1fr}}
+.stat{font-size:clamp(7rem,18vw,13rem);font-weight:600;line-height:.9;letter-spacing:-.05em}
+.body-big{max-width:52rem;font-size:clamp(1.625rem,3.5vw,2.75rem);font-weight:500;line-height:1.22;letter-spacing:-.025em;margin-top:4rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;margin-top:4rem}
+.grid3>div{background:var(--card);padding:2.25rem}
+@media(max-width:768px){.grid3{grid-template-columns:1fr}}
+/* ── How it works ────────────────────────────────────── */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;margin-top:3rem}
+.steps-grid li{background:var(--card);padding:2.25rem;list-style:none}
+@media(max-width:900px){.steps-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.steps-grid{grid-template-columns:1fr}}
+.step-num{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--acc-fg);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+/* ── Story section ───────────────────────────────────── */
+.story-band{background:var(--sec-bg);padding:5.5rem 0;transition:background .3s}
+.story-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+@media(max-width:768px){.story-inner{grid-template-columns:1fr}}
+.dialogue{display:flex;flex-direction:column;gap:1.125rem;margin-top:2rem}
+.bubble{padding:1.125rem 1.375rem;border-radius:1.25rem;font-size:.9375rem;line-height:1.6;max-width:90%}
+.bubble.robot{background:var(--fg);color:var(--bg);border-bottom-left-radius:.25rem;align-self:flex-start}
+.bubble.human{background:var(--card);border:1px solid var(--border);border-bottom-right-radius:.25rem;align-self:flex-end}
+.bubble .speaker{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.375rem}
+/* ── Innovation pillars ──────────────────────────────── */
+.pillars{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:1.25rem;overflow:hidden;margin-top:3rem}
+.pillar{display:flex;align-items:flex-start;gap:1.375rem;padding:1.625rem 1.875rem;border-bottom:1px solid var(--border);background:var(--card);transition:background .15s}
+.pillar:last-child{border-bottom:0}
+.pillar:hover{background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.pillar-icon{width:40px;height:40px;border-radius:.75rem;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.125rem}
+.pillar-body h3{font-size:1rem;font-weight:600;margin-bottom:.25rem}
+.pillar-body p{font-size:.875rem;color:var(--muted);line-height:1.6}
+/* ── Knowledge rescue ────────────────────────────────── */
+.rescue-band{background:var(--sec-bg);padding:5.5rem 0;transition:background .3s}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:3rem}
+@media(max-width:900px){.card-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.card-grid{grid-template-columns:1fr}}
+.kcard{padding:1.5rem;border:1px solid var(--border);border-radius:1rem;background:var(--card);transition:.2s;cursor:default}
+.kcard:hover{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.kcard .topic{font-size:1.0625rem;font-weight:600}
+.kcard .out{margin-top:.875rem;font-size:13.5px;color:var(--muted)}
+.kcard:hover .out{color:rgba(250,250,250,.6)}
 /* ── Map ─────────────────────────────────────────────── */
 .map-frame{margin-top:3rem;border:1px solid var(--border);border-radius:1.5rem;background:var(--card);padding:2rem;overflow:hidden}
 .map-frame svg{width:100%;height:auto;display:block}
