@@ -27,7 +27,7 @@ DB_EXTENSIONS = {".db", ".sqlite", ".sqlite3"}
 ALLOWED_EXTENSIONS = DB_EXTENSIONS | {".sql"}
 
 # ── GitHub Upload Configuration ───────────────────────────────────────────────
-GITHUB_TOKEN   = os.environ.get("GITHUB_TOKEN", "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")
+GITHUB_TOKEN   = os.environ.get("GITHUB_TOKEN", "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")
 GITHUB_OWNER   = "Lizardfol"
 GITHUB_REPO    = "Nexanic"
 GITHUB_BRANCH  = "main"
